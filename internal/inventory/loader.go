@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/TrueBlocks/trueblocks-shopping/internal/color"
+	"github.com/TrueBlocks/trueblocks-art/packages/color"
 )
 
 //go:embed paints.csv

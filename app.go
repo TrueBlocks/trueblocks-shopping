@@ -15,7 +15,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/TrueBlocks/trueblocks-shopping/internal/color"
+	"github.com/TrueBlocks/trueblocks-art/packages/color"
 	"github.com/TrueBlocks/trueblocks-shopping/internal/inventory"
 	"github.com/TrueBlocks/trueblocks-shopping/internal/settings"
 
