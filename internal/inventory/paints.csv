@@ -1,0 +1,118 @@
+id,brand,name,series,opacity,pigments,r,g,b
+GOLDEN-1120,Golden,Cadmium Yellow Light,7,Opaque,PY37,255,223,0
+GOLDEN-1130,Golden,Cadmium Yellow Medium,7,Opaque,PY37,255,204,0
+GOLDEN-1135,Golden,Cadmium Yellow Dark,7,Opaque,PY37,255,179,0
+GOLDEN-1530,Golden,Primary Yellow,4,Semi-Opaque,PY74,255,231,0
+GOLDEN-1560,Golden,Hansa Yellow Light,3,Transparent,PY3,255,238,0
+GOLDEN-1565,Golden,Hansa Yellow Medium,3,Transparent,PY74,255,217,0
+GOLDEN-1570,Golden,Hansa Yellow Opaque,4,Opaque,PY74,255,210,0
+GOLDEN-1010,Golden,Cadmium Orange,7,Opaque,PO20,255,128,0
+GOLDEN-1525,Golden,Pyrrole Orange,6,Semi-Opaque,PO73,255,102,0
+GOLDEN-1521,Golden,Transparent Pyrrole Orange,6,Transparent,PO71,255,110,30
+GOLDEN-1090,Golden,Cadmium Red Light,9,Opaque,PR108,255,49,49
+GOLDEN-1095,Golden,Cadmium Red Medium,9,Opaque,PR108,214,0,38
+GOLDEN-1100,Golden,Cadmium Red Dark,9,Opaque,PR108,170,0,36
+GOLDEN-1535,Golden,Primary Magenta,4,Transparent,PR122,199,21,133
+GOLDEN-1452,Golden,Quinacridone Magenta,6,Transparent,PR122,199,21,133
+GOLDEN-1450,Golden,Quinacridone Red,6,Transparent,PV19,220,38,127
+GOLDEN-1555,Golden,Naphthol Red Light,4,Semi-Opaque,PR112,230,32,32
+GOLDEN-1260,Golden,Pyrrole Red,6,Opaque,PR254,200,16,46
+GOLDEN-1220,Golden,Alizarin Crimson Hue,4,Transparent,PR177/PV19,138,0,44
+GOLDEN-1445,Golden,Quinacridone Crimson,6,Transparent,PR206,179,40,81
+GOLDEN-1440,Golden,Quinacridone Burnt Orange,6,Transparent,PO48,179,86,36
+GOLDEN-1205,Golden,Dioxazine Purple,4,Transparent,PV23,75,0,130
+GOLDEN-1401,Golden,Ultramarine Violet,3,Transparent,PV15,75,0,110
+GOLDEN-1400,Golden,Ultramarine Blue,2,Transparent,PB29,50,47,75
+GOLDEN-1140,Golden,Cobalt Blue,8,Semi-Transparent,PB28,0,71,171
+GOLDEN-1144,Golden,Cobalt Blue Hue,4,Opaque,PB29/PW6,0,89,178
+GOLDEN-1540,Golden,Primary Cyan,4,Semi-Opaque,PB15:3,0,180,247
+GOLDEN-1256,Golden,Phthalo Blue (Green Shade),4,Transparent,PB15:3,0,49,83
+GOLDEN-1255,Golden,Phthalo Blue (Red Shade),4,Transparent,PB15:1,0,38,77
+GOLDEN-1145,Golden,Cobalt Teal,8,Opaque,PG50,0,168,168
+GOLDEN-1275,Golden,Phthalo Green (Blue Shade),4,Transparent,PG7,0,78,56
+GOLDEN-1276,Golden,Phthalo Green (Yellow Shade),4,Transparent,PG36,0,102,51
+GOLDEN-1250,Golden,Permanent Green Light,4,Opaque,PG7/PY3,86,186,90
+GOLDEN-1225,Golden,Chromium Oxide Green,3,Opaque,PG17,79,121,66
+GOLDEN-1226,Golden,Chromium Oxide Green Dark,3,Opaque,PG17,54,89,46
+GOLDEN-1375,Golden,Sap Green Hue,4,Transparent,PY150/PG36,78,114,50
+GOLDEN-1315,Golden,Jenkins Green,4,Transparent,PG7/PY150,0,84,50
+GOLDEN-1705,Golden,Yellow Ochre,1,Opaque,PY43,202,144,30
+GOLDEN-1350,Golden,Raw Sienna,1,Transparent,PBr7,211,142,73
+GOLDEN-1355,Golden,Raw Umber,1,Transparent,PBr7,115,74,18
+GOLDEN-1020,Golden,Burnt Sienna,1,Transparent,PBr7,138,51,36
+GOLDEN-1025,Golden,Burnt Umber,1,Transparent,PBr7,54,40,30
+GOLDEN-1805,Golden,Transparent Brown Iron Oxide,1,Transparent,PR101,120,47,22
+GOLDEN-1310,Golden,Indian Yellow Hue,4,Transparent,PY83,255,180,30
+GOLDEN-1570,Golden,Naples Yellow Hue,3,Opaque,PY42/PW6,255,205,140
+GOLDEN-1040,Golden,Carbon Black,1,Opaque,PBk7,28,28,28
+GOLDEN-1240,Golden,Mars Black,1,Opaque,PBk11,35,31,32
+GOLDEN-1380,Golden,Titanium White,1,Opaque,PW6,255,255,255
+GOLDEN-1415,Golden,Zinc White,1,Semi-Transparent,PW4,250,250,250
+GOLDEN-1408,Golden,Titan Buff,1,Opaque,PW6/PBr7,223,209,182
+GOLDEN-1310,Golden,Iridescent Gold (Fine),5,Opaque,Mica,212,175,55
+LQX-1051,Liquitex,Titanium White,1,Opaque,PW6,251,241,244
+LQX-1244,Liquitex,Ivory Black,1,Opaque,PBk9,41,36,33
+LQX-1151,Liquitex,Cadmium Yellow Light Hue,2,Opaque,PY3/PY74,255,221,0
+LQX-1163,Liquitex,Cadmium Yellow Medium Hue,2,Opaque,PY83/PO34,255,199,0
+LQX-1720,Liquitex,Cadmium Orange Hue,2,Opaque,PO62/PY83,255,140,0
+LQX-1110,Liquitex,Cadmium Red Medium Hue,2,Opaque,PR112/PO34,200,27,9
+LQX-1311,Liquitex,Cadmium Red Deep Hue,2,Opaque,PR254/PR112,176,23,31
+LQX-1300,Liquitex,Alizarin Crimson Hue Permanent,2,Transparent,PR177/PR264,137,12,32
+LQX-1500,Liquitex,Primary Blue,2,Semi-Opaque,PB15:3/PW6,0,120,191
+LQX-1380,Liquitex,Ultramarine Blue,1,Transparent,PB29,50,47,75
+LQX-1316,Liquitex,Phthalo Blue (Green Shade),1,Transparent,PB15:3,7,50,89
+LQX-1317,Liquitex,Phthalo Blue (Red Shade),1,Transparent,PB15:1,13,52,87
+LQX-1450,Liquitex,Cerulean Blue Hue,2,Opaque,PB15:3/PW6,0,123,167
+LQX-1186,Liquitex,Cobalt Blue Hue,2,Opaque,PB29/PW6,0,89,178
+LQX-1560,Liquitex,Primary Yellow,2,Semi-Opaque,PY74,255,241,0
+LQX-1570,Liquitex,Primary Red,2,Semi-Opaque,PR170,225,44,44
+LQX-1319,Liquitex,Phthalo Green (Blue Shade),1,Transparent,PG7,0,78,56
+LQX-1319,Liquitex,Phthalo Green (Yellow Shade),1,Transparent,PG36,0,115,58
+LQX-1224,Liquitex,Hooker's Green Hue Permanent,2,Semi-Transparent,PG7/PY3,30,107,60
+LQX-1315,Liquitex,Sap Green Permanent,2,Transparent,PG36/PY150,85,107,47
+LQX-1330,Liquitex,Chromium Oxide Green,2,Opaque,PG17,79,121,66
+LQX-1587,Liquitex,Yellow Oxide,1,Opaque,PY42,222,157,47
+LQX-1127,Liquitex,Burnt Sienna,1,Transparent,PBr7,112,62,53
+LQX-1128,Liquitex,Burnt Umber,1,Transparent,PBr7,54,40,30
+LQX-1505,Liquitex,Raw Sienna,1,Transparent,PY43,211,142,73
+LQX-1507,Liquitex,Raw Umber,1,Transparent,PBr7,115,74,18
+LQX-1391,Liquitex,Prism Violet,2,Transparent,PV23,75,0,130
+LQX-1186,Liquitex,Dioxazine Purple,1,Transparent,PV23,75,0,130
+LQX-1114,Liquitex,Quinacridone Magenta,2,Transparent,PR122,199,21,133
+LQX-1504,Liquitex,Quinacridone Crimson,2,Transparent,PR206,152,28,55
+WN-644,Winsor & Newton,Titanium White,1,Opaque,PW6,255,255,255
+WN-386,Winsor & Newton,Mars Black,1,Opaque,PBk11,35,31,32
+WN-331,Winsor & Newton,Ivory Black,1,Opaque,PBk9,40,39,42
+WN-118,Winsor & Newton,Cadmium Yellow Pale,4,Opaque,PY35,255,238,0
+WN-108,Winsor & Newton,Cadmium Yellow Medium,4,Opaque,PY35,255,211,0
+WN-111,Winsor & Newton,Cadmium Yellow Deep,4,Opaque,PY35/PO20,255,183,0
+WN-089,Winsor & Newton,Cadmium Orange,4,Opaque,PO20,255,128,0
+WN-099,Winsor & Newton,Cadmium Scarlet,4,Opaque,PR108,255,36,0
+WN-094,Winsor & Newton,Cadmium Red,4,Opaque,PR108,227,0,34
+WN-097,Winsor & Newton,Cadmium Red Deep,4,Opaque,PR108,184,15,10
+WN-004,Winsor & Newton,Alizarin Crimson,3,Transparent,PR83,227,38,54
+WN-502,Winsor & Newton,Permanent Rose,3,Transparent,PV19,108,1,24
+WN-545,Winsor & Newton,Quinacridone Magenta,3,Transparent,PR122,199,21,133
+WN-192,Winsor & Newton,Cobalt Blue,4,Semi-Transparent,PB28,0,71,171
+WN-263,Winsor & Newton,French Ultramarine,2,Transparent,PB29,48,48,128
+WN-706,Winsor & Newton,Winsor Blue (Green Shade),2,Transparent,PB15:3,0,49,83
+WN-709,Winsor & Newton,Winsor Blue (Red Shade),2,Transparent,PB15:1,0,38,77
+WN-178,Winsor & Newton,Cobalt Turquoise Light,4,Opaque,PG50,0,168,168
+WN-522,Winsor & Newton,Phthalo Green (Blue Shade),2,Transparent,PG7,0,78,56
+WN-521,Winsor & Newton,Phthalo Green (Yellow Shade),2,Transparent,PG36,0,102,51
+WN-503,Winsor & Newton,Permanent Sap Green,2,Transparent,PG36/PY110,85,107,47
+WN-459,Winsor & Newton,Oxide of Chromium,2,Opaque,PG17,79,121,66
+WN-744,Winsor & Newton,Yellow Ochre,1,Opaque,PY43,173,115,34
+WN-552,Winsor & Newton,Raw Sienna,1,Transparent,PY43,211,142,73
+WN-554,Winsor & Newton,Raw Umber,1,Transparent,PBr7,115,74,18
+WN-074,Winsor & Newton,Burnt Sienna,1,Transparent,PBr7,112,62,53
+WN-076,Winsor & Newton,Burnt Umber,1,Transparent,PBr7,54,40,30
+WN-231,Winsor & Newton,Dioxazine Purple,2,Transparent,PV23,75,0,130
+WN-672,Winsor & Newton,Ultramarine Violet,2,Transparent,PV15,75,0,110
+WN-319,Winsor & Newton,Indian Yellow,3,Transparent,PY139,255,180,30
+WN-422,Winsor & Newton,Naples Yellow,2,Opaque,PY42/PW6,250,218,94
+WN-074,Winsor & Newton,Venetian Red,1,Opaque,PR101,128,48,32
+WN-317,Winsor & Newton,Indian Red,1,Opaque,PR101,176,52,38
+WN-362,Winsor & Newton,Light Red,1,Opaque,PR101,194,111,88
+WN-465,Winsor & Newton,Paynes Gray,1,Semi-Transparent,PBk6/PB15,83,104,120
+WN-217,Winsor & Newton,Davys Gray,1,Opaque,PBk19,85,85,85

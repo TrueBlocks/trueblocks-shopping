@@ -1,0 +1,345 @@
+﻿Architectural Blueprint for a Go-React-Wails Desktop Application: Interactive Image Quantization and Acrylic Pigment Matching
+1. Executive Summary and Architectural Vision
+The objective of this comprehensive technical report is to define the architecture, implementation strategy, and theoretical underpinnings of a high-performance cross-platform desktop application designed for artists. The specific functional goal is to enable users to drag and drop reference images onto an interactive canvas, mathematically extract the dominant color palette, and generate an immediate "shopping list" of physical acrylic paints that perceptually match the digital source.
+The constraint of avoiding Python—a language traditionally associated with data science and colorimetry—necessitates a robust alternative stack. This solution utilizes Go (Golang) for its raw computational speed, concurrency model, and strict type safety, coupled with React for a responsive, component-driven user interface. The bridge between these two environments is provided by Wails v2, a framework that enables the compilation of Go applications into native binaries with a web-based frontend, eliminating the memory overhead associated with Electron while maintaining the flexibility of web technologies.
+This report will explore the intricacies of building such a system, moving beyond simple implementation details into the computer science of color perception, the mathematics of clustering algorithms, and the software engineering required to bridge the gap between an operating system's file manager and a React virtual DOM.
+1.1 The Shift from Scripting to Native Compilation
+While Python offers libraries like scikit-learn for K-Means clustering 2, distributing Python applications to end-users often involves complex dependency management (Docker, virtual environments, or massive installers). By selecting Go, we leverage a compiled language that produces a single, static binary. This is particularly advantageous for image processing tasks where the overhead of an interpreter can introduce latency in interactive feedback loops. Go's standard library provides robust image decoding capabilities (image/jpeg, image/png), and its community offers highly optimized packages for clustering and color space conversion, such as github.com/cenkalti/dominantcolor 3 and github.com/jkl1337/go-chromath.4
+1.2 The "Interactive" Requirement
+The user's requirement for an "interactive" output implies a specific performance profile. The application cannot block the UI thread while processing a 4K image. This necessitates a multi-threaded architecture where:
+1. The Main Thread manages the window and WebView via Wails.
+2. Worker Goroutines handle the heavy lifting of pixel iteration, K-Means convergence, and database lookups.
+3. The React Frontend remains responsive, displaying loading states or progressive updates via Wails events.5
+This report is structured to guide a senior engineer through the full lifecycle of this application, from the raw physics of light required for accurate color matching to the specific CSS properties needed to trigger a drag-and-drop event in a Wails window.
+________________
+2. The Wails v2 Runtime Architecture
+Understanding the Wails runtime is prerequisite to implementing the specific features of file dropping and image processing. Wails v2 operates differently from traditional web servers or Electron apps.
+2.1 The IPC Bridge and Binding Mechanism
+In a Wails application, the Go backend and the JavaScript frontend communicate via an Inter-Process Communication (IPC) bridge. Unlike a REST API where data is serialized to JSON and sent over HTTP, Wails injects a JavaScript object (window.go) into the WebView.
+Methods defined on a Go struct can be "bound" to the application, automatically generating JavaScript wrappers. For this project, a central App struct will serve as the controller, exposing methods like ProcessImage(path string) and GetPaintMatches(r, g, b int) directly to the React frontend.6
+This architecture allows for tight coupling between the UI and the logic. When a user clicks a pixel on the React canvas, the frontend invokes a Go method as a Promise. Go performs the CIELAB conversion and database search (operations that would be slow in JavaScript) and returns the result in milliseconds.
+2.2 WebView nuances: WebKit vs. WebView2
+The "cross-platform" nature of Wails means the React code runs in different engines depending on the OS:
+* Windows: Uses Microsoft Edge WebView2 (Chromium-based).
+* macOS: Uses WebKit (Safari-based).
+* Linux: Uses WebKitGTK.
+This distinction is critical for CSS implementation, particularly for the drag-and-drop overlay. While Chromium (Windows) is permissive with drag events, WebKit (macOS) requires strict adherence to preventing default browser behaviors to avoid the WebView simply navigating to the image file (displaying it as file:///...) rather than processing it. The configuration of the Wails application options must account for these differences by explicitly disabling default drag behaviors.8
+2.3 The Event Bus
+Beyond direct method calls, Wails provides a unified event bus (runtime.EventsOn / runtime.EventsEmit). This is essential for the image processing workflow.
+When a large image is dropped:
+1. React detects the drop and signals Go.
+2. Go begins the K-Means clustering (which might take 200-500ms).
+3. Go emits processing:progress events (e.g., "Resizing...", "Quantizing...", "Matching...").
+4. React listens for these events to update a progress bar.
+5. Go emits processing:complete with the final JSON payload of the palette.
+This event-driven approach ensures the "interactive" feel is maintained even during heavy computation.5
+________________
+3. Advanced Drag-and-Drop Implementation
+The most critical interaction point for this application is the ability to drop an image file from the OS file manager (Finder/Explorer) onto the application window. This is fundamentally different from a web-based file upload because we need the absolute system path of the file to pass to Go's os.Open() function, rather than a browser-sandboxed File blob.
+3.1 Wails Native Configuration
+Wails v2 provides a dedicated configuration struct options.DragAndDrop within the main.go file. To satisfy the requirements, we must enable specific flags that might seem contradictory at first glance.
+Table 1: Wails Drag-and-Drop Configuration Parameters
+
+
+Parameter
+	Recommended Value
+	Reasoning
+	Source
+	EnableFileDrop
+	true
+	Enables the internal mechanism to capture file paths dropped on the window.
+	9
+	DisableWebViewDrop
+	true
+	Critical. Prevents the WebView from "opening" the image (navigating away from the React app). We want to process the file, not display it raw.
+	8
+	CSSDropProperty
+	--wails-drop-target
+	Defines the CSS variable that identifies which HTML elements accept drops.
+	9
+	CSSDropValue
+	drop
+	The value the CSS variable must hold to activate the drop zone.
+	9
+	Implementation Logic:
+By setting DisableWebViewDrop: true, we effectively disable the standard HTML5 drag-and-drop API for the browser to handle the file. However, Wails intercepts the OS-level drag event. If the mouse is hovering over an element with the style --wails-drop-target: drop, Wails triggers the OnFileDrop callback in Go.
+3.2 The OnFileDrop Callback Lifecycle
+The runtime.OnFileDrop method in Go acts as the primary handler.
+
+
+Go
+
+
+
+
+// Conceptual Go Implementation
+func (a *App) startup(ctx context.Context) {
+   a.ctx = ctx
+   runtime.OnFileDrop(ctx, func(x, y int, pathsstring) {
+       // This callback runs in the Go context
+       if len(paths) > 0 {
+           a.handleFileDrop(paths)
+       }
+   })
+}
+
+There is a known issue (or feature) documented in snippet 10 and 10 where developer confusion arises regarding OnDomReady vs OnFileDrop. It is noted that OnFileDrop listeners should be registered during the startup or OnDomReady lifecycle hooks. Crucially, the callback receives the coordinates ($x, y$) and a slice of strings (string) representing absolute paths. This bypasses the browser sandbox entirely, allowing the Go application to read files of any size without copying them into the WebView's memory.10
+3.3 The Frontend Hybrid Approach
+While Go handles the file, React must handle the user experience. Users expect visual feedback (highlighting the canvas) when they drag a file over the window.
+Since we disabled the webview's native drop handling, standard onDragOver events in React might behave inconsistently across platforms.
+The solution is a hybrid approach:
+1. CSS-based Detection: We apply the Wails-specific CSS property to the main container:
+.drop-zone {
+--wails-drop-target: drop;
+}
+```
+Wails automatically adds a class wails-drop-target-active to this element when a drag occurs. We can use this class in our CSS to style the border or opacity, providing native-feeling feedback without writing complex JavaScript event handlers.9
+2. React State Update: When Go processes the file, it emits an event image:loaded with the file data (base64 or local asset URL). React listens for this event to update the canvas.
+________________
+4. Computational Color Science: From Pixels to Perception
+The core value of this application lies in its ability to translate a digital pixel (RGB) into a physical product (Acrylic Paint). This is not a trivial mapping. RGB is a device-dependent color space; it describes how much light a screen should emit, not how a human perceives color.
+4.1 The Failures of RGB Distance
+A naive implementation would calculate the Euclidean distance between the target RGB $(R_t, G_t, B_t)$ and a paint RGB $(R_p, G_p, B_p)$:
+
+
+
+
+$$d = \sqrt{(R_t-R_p)^2 + (G_t-G_p)^2 + (B_t-B_p)^2}$$
+
+
+This approach is fundamentally flawed because the RGB color space is not perceptually uniform. A distance of 10 units in the "Blue" channel is perceptually different from a distance of 10 units in the "Green" channel. The human eye is far more sensitive to changes in green/luminance than in blue.12 Using this metric would result in a shopping list that "looks wrong" to an artist.
+4.2 The CIELAB Solution
+To solve this, we must operate in the CIE Lab* (CIELAB) color space, designed in 1976 to approximate human vision.
+* L (Lightness):* 0 (Black) to 100 (White).
+* a (Green-Red):* Negative values are green; positive values are red.
+* b (Blue-Yellow):* Negative values are blue; positive values are yellow.
+Transformation Pipeline:
+1. sRGB to Linear RGB: Remove the gamma correction (approx 2.2) applied to digital images.
+2. Linear RGB to CIE XYZ: A linear transformation using a standardized matrix based on the D65 illuminant (standard daylight), which is the standard white point for sRGB.4
+3. CIE XYZ to CIELAB: A non-linear transformation that accounts for the eye's logarithmic response to luminance.
+This pipeline must be implemented in Go using a library like go-chromath 4 to ensure mathematical precision before any distance calculation occurs.
+4.3 Delta E ($\Delta E$): The Metric of Difference
+The distance between two colors in CIELAB space is measured in Delta E.
+* CIE76: The standard Euclidean distance in Lab space. While better than RGB, it still fails to model the eye's sensitivity to saturation (chroma) differences versus hue differences.13
+* CIEDE2000 ($\Delta E_{00}$): The gold standard. This complex formula adds weighting functions ($S_L, S_C, S_H$) and rotation terms ($R_T$) to correct for the non-uniformity of the Lab space itself, particularly in the blue region.13
+Requirement Satisfaction: To provide a "nuanced understanding" as requested, the application will default to CIEDE2000. While computationally more expensive than Euclidean distance, Go's performance allows calculating $\Delta E_{00}$ for thousands of paints in microseconds.
+Table 2: Perceptual Meaning of Delta E Values
+Delta E (ΔE00​)
+	Perceptual Experience
+	Shopping List Classification
+	$< 1.0$
+	Imperceptible difference
+	"Perfect Match"
+	$1.0 - 2.0$
+	Perceptible on close inspection
+	"Excellent Match"
+	$2.0 - 5.0$
+	Perceptible at a glance
+	"Good Alternative"
+	$5.0 - 10.0$
+	Different but related color
+	"Approximate / Mixing Base"
+	$> 10.0$
+	Different color
+	"No Match Found"
+	This table will guide the UI feedback, giving the artist confidence in the suggested paints.15
+________________
+5. Algorithmic Quantization: Extracting the Palette
+When a user drops an image, they don't want a match for every single one of the 2 million pixels in a 1080p image. They want the "dominant" colors—the essence of the composition. This requires color quantization.
+5.1 K-Means Clustering Implementation
+K-Means is the superior algorithm for this task compared to Histogram methods or Median Cut, as it adapts to the actual distribution of colors in the image rather than arbitrary cutting of the color space.2
+The Algorithm Steps:
+1. Initialization: Select $k$ initial centroids. We will use K-Means++ initialization 17, which selects centroids that are distant from each other. This prevents the algorithm from getting stuck in local minima (e.g., finding 5 shades of the same blue sky).
+2. Assignment: Iterate through every pixel. Assign it to the cluster with the nearest centroid (using Euclidean squared distance in RGB is acceptable here for speed, though Lab is better).
+3. Update: Recalculate the centroid of each cluster by averaging the colors of all pixels assigned to it.
+4. Convergence: Repeat steps 2-3 until the centroids move less than a threshold $\epsilon$.
+5.2 Performance Optimization Strategy
+Running K-Means on a 12-megapixel image is unnecessary and slow. The dominant colors of an image are statistically preserved even when the image is downscaled significantly.
+* Resampling: The Go backend will resize the input image to a manageable dimension (e.g., $128 \times 128$ or $256 \times 256$) using a high-quality resampling filter (e.g., Catmull-Rom) provided by golang.org/x/image/draw.16
+* Concurrency: The clustering process will run in a dedicated Goroutine. Wails handles the non-blocking nature, but explicit Go channels can be used to stream partial results if "live" updating is desired (e.g., showing the palette evolving as the algorithm converges).
+Code Snippet Logic (Conceptual Go):
+
+
+Go
+
+
+
+
+// Using github.com/cenkalti/dominantcolor or similar
+func ExtractColors(img image.Image, k int)color.RGBA {
+   // 1. Downscale image for performance
+   smallImg := resize.Thumbnail(256, 256, img, resize.Lanczos3)
+   
+   // 2. Run K-Means
+   // The library handles the K-Means++ init and RGB/Lab convergence
+   return dominantcolor.FindN(smallImg, k)
+}
+
+Snippet 3 confirms that github.com/cenkalti/dominantcolor implements this exact logic, using K-Means clustering in RGB space.
+________________
+6. The Virtual Pigment Inventory
+To generate a shopping list, we need a database of products. The research material provides data for three major acrylic brands: Golden, Liquitex, and Winsor & Newton. We must normalize this data into a structured format that the Go backend can ingest.
+6.1 Data Ingestion and Normalization
+We will utilize Go's encoding/csv package to parse a master CSV file embedded in the application binary.19 This file will aggregate the research data.
+Data Sources Synthesis:
+* Golden Heavy Body: We have high-quality Lab data and Munsell notations for this line.20 Colors like "Cadmium Yellow Light" (L88.89 a-1.72 b*94.38) serve as anchor points.
+* Liquitex: Data is available in Hex/RGB formats.23 For example, Liquitex "Titanium White" is listed as RGB(251, 241, 244). We must assume a D65 illuminant to convert this to Lab for comparison with Golden.
+* Winsor & Newton: Available as RGB data.26 "Burnt Sienna" is RGB(112, 62, 53).
+6.2 Struct Design for Physical Paints
+The PaintProduct struct in Go must capture more than just color; it must capture the utility of the paint.
+
+
+Go
+
+
+
+
+type PaintProduct struct {
+   ID            string
+   Brand         string  // "Golden", "Liquitex", "Winsor & Newton"
+   Name          string  // "Cadmium Red Medium"
+   Series        int     // Price series (1-9)
+   Opacity       string  // "Opaque", "Transparent"
+   Pigments      string  // "PR108"
+   RGB           [1]uint8
+   Lab           [1]float64 // Pre-computed CIELAB values
+}
+
+Insight: The Pigments field is crucial for the professional artist. If the algorithm matches a digital color to a "Hue" paint (e.g., "Cadmium Red Hue"), the shopping list should ideally signal that this is a multi-pigment mixture (often muddier when mixed) versus a single-pigment historic color.28
+6.3 Handling "Metamerism" and Availability
+A potential issue is that a matched color might be discontinued or region-specific. The report recommends including a flag in the CSV for RegionAvailability if such data were fully available. Based on the snippets, we will focus on the "Heavy Body" lines which are generally standard globally.
+The application should also filter out "Fluorescent" and "Iridescent" colors 25 from the standard matching algorithm unless the user toggles a "Specialty Paints" mode, as these colors fall outside the standard sRGB gamut and can cause matching errors (e.g., a neon yellow might match a dull green in RGB space due to clipping).
+________________
+7. Frontend Engineering with React & TypeScript
+The frontend is responsible for the "Interactive" experience. It must be decoupled from the heavy math but tightly integrated with the results.
+7.1 State Management
+We will use Zustand or React Context to manage the application state.
+* currentImage: Base64 string or local URL of the dropped image.
+* palette: Array of extracted dominant colors.
+* shoppingList: Array of matched PaintProduct objects.
+* isProcessing: Boolean flag for UI spinners.
+7.2 The Interactive Canvas Component
+To allow users to pick specific colors (beyond the automatic dominant ones), we need a custom Canvas component.
+1. Rendering: Use the useRef hook to access the HTML5 <canvas> element. Draw the image using context.drawImage().
+2. Sampling: Attach an onClick handler.
+   * Get mouse coordinates $(x, y)$.
+   * Call context.getImageData(x, y, 1, 1) to retrieve the RGBA value.
+   * IPC Call: Immediately invoke App.GetPaintMatch(r, g, b) via Wails bindings.
+   * Update UI: Add the returned paint to a "Manual Selection" list.
+7.3 Visualizing the Shopping List
+The output should not be a text list. It should be a visual verification tool.
+Table 3: UI Component Specification for Shopping List Items
+UI Element
+	Data Source
+	Visual Representation
+	Color Swatch
+	PaintProduct.Hex
+	A div with background-color.
+	Match Quality
+	$\Delta E$ Calculation
+	A colored badge: Green ($\Delta E < 2$), Yellow ($\Delta E < 5$), Red ($\Delta E > 5$).
+	Pigment Info
+	PaintProduct.Pigments
+	Small text (e.g., "PR108"). Useful for artists to verify single-pigment status.
+	Brand Badge
+	PaintProduct.Brand
+	Logo or text tag (Golden/Liquitex/W&N).
+	This layout allows the user to visually confirm if the computer's math aligns with their perception.
+________________
+8. Implementation Roadmap and Code Structure
+This section outlines the directory structure and implementation order to ensure a successful build.
+8.1 Project Structure
+The Wails CLI (wails init -t react-ts) generates the scaffold. We will structure the Go backend to separate domain logic from the UI bridge.
+AcrylicMaster/
+├── main.go # Application Entry Point & Wails Config
+├── app.go # The "Controller": Wails Bindings
+├── wails.json # Project Configuration
+├── frontend/ # React Application
+│ ├── src/
+│ │ ├── components/ # DropZone, Canvas, PaletteList
+│ │ ├── stores/ # Zustand Stores
+│ │ └── App.tsx
+├── internal/
+│ ├── color/ # Core Domain Logic
+│ │ ├── delta_e.go # CIEDE2000 Logic
+│ │ ├── kmeans.go # Quantization Logic
+│ │ └── conversion.go # RGB->Lab Logic
+│ └── inventory/
+│ ├── loader.go # CSV Parser
+│ └── paints.csv # The Data
+└── go.mod
+8.2 Step-by-Step Implementation Guide
+Phase 1: Foundation
+1. Initialize project.
+2. Configure wails.json and main.go with EnableFileDrop: true and DisableWebViewDrop: true.
+3. Implement basic OnFileDrop logging to verify path capture.
+Phase 2: The Virtual Inventory
+1. Create paints.csv aggregating data from Golden 20, Liquitex 23, and W&N.26
+2. Implement loader.go to parse this CSV into a slice of PaintProduct structs.
+3. Implement the conversion loop: On load, convert all RGB values in the CSV to Lab values using go-chromath and cache them in memory.
+Phase 3: The Math Engine
+1. Implement GetPaintMatch(targetRGB) function in Go.
+2. It should convert target RGB to Lab.
+3. It should loop through the cached PaintProduct slice, calculating $\Delta E_{00}$ for each.
+4. Sort by distance and return top 3 matches.
+Phase 4: The Quantization Engine
+1. Implement ExtractPalette(imagePath) in Go.
+2. Load image, resize to 256px max dimension.
+3. Run K-Means (k=5).
+4. For each centroid found, call GetPaintMatch.
+5. Return a composite object: { DominantColors: } ] }.
+Phase 5: The Frontend
+1. Build the Drop overlay using CSS --wails-drop-target.
+2. Wire up the EventsOn("processing:complete") listener.
+3. Render the results in a clean Grid layout.
+________________
+9. Conclusion
+This report defines a system that satisfies the user's request for a robust, non-Python, interactive desktop application. By leveraging Go's performance characteristics, we can perform complex CIEDE2000 calculations and K-Means clustering in real-time. By utilizing Wails v2, we deliver a modern, cross-platform UI without the bloat of Electron.
+The resulting application is not merely a color picker; it is a sophisticated bridge between the digital and physical art worlds. It respects the physics of light through proper color space conversions and respects the artist's workflow through a responsive, native-feeling drag-and-drop interface. The detailed breakdown of paint datasets ensures that the "Shopping List" output is actionable and accurate, referencing real-world product codes and pigment details.
+This architecture represents a professional-grade solution, scalable to include more brands or advanced features (like mixing simulation) in future iterations.
+________________
+10. Detailed Data Appendix: Paint Database Normalization
+To aid in the construction of the paints.csv, the following data clusters have been synthesized from the research material.
+Golden Heavy Body Examples 20:
+* Cadmium Yellow Light: 1120, Lab(88.89, -1.72, 94.38).
+* Primary Yellow: 1530, Lab(84.73, 5.34, 86.88).
+* Burnt Sienna: 1020, Munsell 3.0 YR 3.25/4.
+Liquitex Heavy Body Examples 23:
+* Titanium White: RGB(251, 241, 244).
+* Cadmium Red Medium: RGB(200, 27, 9).
+* Ultramarine Blue: RGB(50, 47, 75).
+Winsor & Newton Professional Examples 27:
+* Yellow Ochre: RGB(173, 115, 34).
+* Permanent Rose: RGB(108, 1, 24).
+* Ivory Black: RGB(40, 39, 42).
+This data should be used to seed the initial database, providing a broad spectrum of coverage across the color wheel. The use of multiple brands ensures that if a specific hue (e.g., a specific teal) exists in Liquitex but not Golden, the user will still get a close match.
+Works cited
+1. Dominant Colors with (not just) K-Means - TSZ, accessed December 30, 2025, https://tatasz.github.io/dominant_colors/
+2. dominantcolor package - github.com/cenkalti/dominantcolor - Go Packages, accessed December 30, 2025, https://pkg.go.dev/github.com/cenkalti/dominantcolor
+3. jkl1337/go-chromath: Useful color math functions for golang - GitHub, accessed December 30, 2025, https://github.com/jkl1337/go-chromath
+4. Events Guide - Wails 3 alpha, accessed December 30, 2025, https://v3alpha.wails.io/guides/events-reference/
+5. How does it work? - Wails, accessed December 30, 2025, https://wails.io/docs/howdoesitwork/
+6. Application Development - Wails, accessed December 30, 2025, https://wails.io/docs/v2.10/guides/application-development/
+7. options package - github.com/wailsapp/wails/v2/pkg/options - Go Packages, accessed December 30, 2025, https://pkg.go.dev/github.com/wailsapp/wails/v2/pkg/options
+8. Drag And Drop | Wails, accessed December 30, 2025, https://wails.io/docs/reference/runtime/draganddrop/
+9. [v2] Files DragAndDrop bugs · Issue #3563 · wailsapp/wails - GitHub, accessed December 30, 2025, https://github.com/wailsapp/wails/issues/3563
+10. Drag And Drop - Wails, accessed December 30, 2025, https://wails.io/docs/next/reference/runtime/draganddrop/
+11. antimatter15/rgb-lab: convert between rgb and L*a*b color spaces in javascript - GitHub, accessed December 30, 2025, https://github.com/antimatter15/rgb-lab
+12. Color Distance and Delta E - ColorAide Documentation - GitHub Pages, accessed December 30, 2025, https://facelessuser.github.io/coloraide/distance/
+13. Building a color matching library with ΔE algorithms | by Kingsley | Medium, accessed December 30, 2025, https://medium.com/@kingsley2169/building-a-color-matching-library-with-%CE%B4e-algorithms-afac5f9433d9
+14. What Is Delta E? And Why Is It Important for Color Accuracy? - ViewSonic Library, accessed December 30, 2025, https://www.viewsonic.com/library/creative-work/what-is-delta-e-and-why-is-it-important-for-color-accuracy/
+15. Calculating the dominant colors in an image | Apple Developer Documentation, accessed December 30, 2025, https://developer.apple.com/documentation/Accelerate/calculating-the-dominant-colors-in-an-image
+16. EdlinOrg/prominentcolor: golang package to find the K most dominant/prominent colors in an image - GitHub, accessed December 30, 2025, https://github.com/EdlinOrg/prominentcolor
+17. Extracting Dominant Image Colors in Flutter with the K-means Algorithm | by Nat Misic, accessed December 30, 2025, https://medium.com/@natasa.misic10/extracting-dominant-image-colors-in-flutter-with-the-k-means-algorithm-bdf2b829bde5
+18. How to Read and Write CSV Files Using Go - Twilio, accessed December 30, 2025, https://www.twilio.com/en-us/blog/developers/community/read-write-csv-file-go
+19. Munsell Notation listing - Heavy Body Acrylics - Golden Artist Colors, accessed December 30, 2025, https://goldenartistcolors.com/resources/munsell-notation-listing-heavy-body-acrylics
+20. Golden Artist Colors (GAC) Heavy Body Acrylic Paint, 2-Ounce Tube, Cadmium Yellow Light (1120-2), accessed December 30, 2025, https://kpinhawaii.org/pano-tours/Emergency-Department/Emergency-Department-fullscreen.html?pano=data:text%2Fxml,%3Ckrpano%20onstart=%22loadpano(%27%2F%5C%2Fp6.pics%2Fp%2F5758482574%27)%3B%22%3E%3C/krpano%3E
+21. Heavy Body Acrylics - Pigment Detail Chart - Golden Artist Colors, accessed December 30, 2025, https://goldenartistcolors.com/products/golden-artist-acrylics/heavy-body/pigment-data
+22. Artist color's RGB, accessed December 30, 2025, http://sensuallogicarchive.dk/paintmaker/artist%20color's%20rgb.html
+23. heavy body acrylic - Blick Art Materials, accessed December 30, 2025, https://www.dick-blick.com/pdfs/Liquitex-Heavy-Body-Pamphlet.pdf
+24. Liquitex Heavy Body Acrylic | Dot chart - Artist Pigments, accessed December 30, 2025, https://artistpigments.org/brands/liquitex-heavy-body-acrylic/dot_chart?sort=oklab-h&sort_direction=desc&view=digital
+25. Winsor & Newton Professional Acrylic | Dot chart - Artist Pigments, accessed December 30, 2025, https://artistpigments.org/brands/winsor-and-newton-professional-acrylic/dot_chart?sort=hue
+26. Artist Colour's RGB, accessed December 30, 2025, http://sensuallogicarchive.dk/paintmaker/artist-colours-to-rgb.html
+27. Heavy Body Acrylic Color - Light Orange, accessed December 30, 2025, https://goldenartistcolors.com/products/heavy-body-acrylic-color-light-orange
+28. GOLDEN Artist Colors HEAVY BODY ACRYLICS - Art Placement, accessed December 30, 2025, https://artplacement.com/artstore/products/golden-heavy-body-acrylics.php
+29. Liquitex Basics Acrylic | Dot chart - Artist Pigments, accessed December 30, 2025, https://artistpigments.org/brands/liquitex-basics-acrylics/dot_chart?sort=code
