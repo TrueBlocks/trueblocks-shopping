@@ -6,8 +6,8 @@ import (
 	"log"
 
 	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
-	"github.com/TrueBlocks/trueblocks-shopping/app"
-	"github.com/TrueBlocks/trueblocks-shopping/internal/state"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/app"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/state"
 	"github.com/wailsapp/wails/v2/pkg/options"
 )
 
@@ -19,7 +19,7 @@ func main() {
 	stateManager := state.NewManager()
 
 	err := appkit.Run(appkit.AppConfig{
-		Title:             "AcrylicMaster",
+		Title:             "Acrylic",
 		Assets:            assets,
 		Width:             1280,
 		Height:            800,

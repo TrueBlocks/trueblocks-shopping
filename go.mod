@@ -1,4 +1,4 @@
-module github.com/TrueBlocks/trueblocks-shopping
+module github.com/TrueBlocks/trueblocks-acrylic/v2
 
 go 1.25.1
 

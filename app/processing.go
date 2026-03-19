@@ -11,7 +11,7 @@ import (
 
 	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
 	"github.com/TrueBlocks/trueblocks-art/packages/color"
-	"github.com/TrueBlocks/trueblocks-shopping/internal/db"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/db"
 	"github.com/nfnt/resize"
 )
 
@@ -95,7 +95,7 @@ func (a *App) processProjectColors(projectID int, imagePath string, nColors int,
 	if err != nil {
 		return ProcessingResult{}, fmt.Errorf("open image: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	img, _, err := image.Decode(f)
 	if err != nil {
@@ -143,7 +143,7 @@ func (a *App) processProjectColors(projectID int, imagePath string, nColors int,
 	if err != nil {
 		return ProcessingResult{}, fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	for _, cr := range results {
 		hex := color.RGBToHex(cr.dominant.R, cr.dominant.G, cr.dominant.B)
@@ -221,7 +221,9 @@ func (a *App) DeleteProjectWithFiles(id int) error {
 
 	dataDir := appkit.AppDirFor("acrylic")
 	projDir := filepath.Dir(filepath.Join(dataDir, proj.ImagePath))
-	os.RemoveAll(projDir)
+	if err := os.RemoveAll(projDir); err != nil {
+		return fmt.Errorf("remove project directory: %w", err)
+	}
 
 	return nil
 }
@@ -270,7 +272,7 @@ func generateThumbnail(srcPath, dstPath string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	img, _, err := image.Decode(f)
 	if err != nil {
@@ -283,7 +285,7 @@ func generateThumbnail(srcPath, dstPath string) error {
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	return encodePNG(out, thumb)
 }

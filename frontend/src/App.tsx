@@ -94,7 +94,7 @@ function App() {
   if (showSplash) {
     return (
       <SplashScreen
-        title="AcrylicMaster"
+        title="Acrylic"
         subtitle="Paint Matching Studio"
         duration={2000}
         onComplete={() => setShowSplash(false)}
@@ -110,7 +110,7 @@ function App() {
 
   return (
     <AppLayout
-      title="AcrylicMaster"
+      title="Acrylic"
       subtitle="Paint Matching Studio"
       headerActions={<DarkModeToggle />}
       navItems={navItems}

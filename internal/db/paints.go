@@ -32,7 +32,7 @@ func (db *DB) GetPaints() ([]Paint, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query paints: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var items []Paint
 	for rows.Next() {
@@ -83,7 +83,7 @@ func (db *DB) GetOwnedPaints() ([]Paint, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query owned paints: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var items []Paint
 	for rows.Next() {
@@ -107,7 +107,7 @@ func (db *DB) GetPaintFilterOptions() (PaintFilterOptions, error) {
 	if err != nil {
 		return opts, fmt.Errorf("query brands: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	for rows.Next() {
 		var v string
 		if err := rows.Scan(&v); err != nil {
@@ -120,7 +120,7 @@ func (db *DB) GetPaintFilterOptions() (PaintFilterOptions, error) {
 	if err != nil {
 		return opts, fmt.Errorf("query opacities: %w", err)
 	}
-	defer rows2.Close()
+	defer func() { _ = rows2.Close() }()
 	for rows2.Next() {
 		var v string
 		if err := rows2.Scan(&v); err != nil {

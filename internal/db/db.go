@@ -35,12 +35,12 @@ func New(dbPath string) (*DB, error) {
 	conn.SetConnMaxLifetime(0)
 
 	if _, err = conn.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("enable foreign keys: %w", err)
 	}
 
 	if _, err = conn.Exec("PRAGMA journal_mode = WAL"); err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("set WAL mode: %w", err)
 	}
 
@@ -98,7 +98,7 @@ func (db *DB) SeedPaints() error {
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	stmt, err := tx.Prepare(`INSERT INTO paints
 		(id, brand, name, series, opacity, pigments, r, g, b, hex, lab_l, lab_a, lab_b)
@@ -106,7 +106,7 @@ func (db *DB) SeedPaints() error {
 	if err != nil {
 		return fmt.Errorf("prepare insert: %w", err)
 	}
-	defer stmt.Close()
+	defer func() { _ = stmt.Close() }()
 
 	for _, p := range paints {
 		_, err = stmt.Exec(

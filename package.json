@@ -1,5 +1,5 @@
 {
-  "name": "shopping",
+  "name": "acrylic",
   "version": "2.0.0",
   "private": true,
   "workspaces": [
@@ -7,10 +7,13 @@
   ],
   "scripts": {
     "build": "yarn --cwd frontend build && wails build",
-    "lint": "yarn --cwd frontend lint",
+    "dev": "wails dev -debounce 1000 2>&1 | grep -v -E 'KnownStructs:|Not found:'",
+    "install": "yarn --cwd frontend install && go mod tidy && yarn build",
+    "lint": "yarn --cwd frontend lint && golangci-lint run ./...",
+    "lint:go": "golangci-lint run ./...",
     "lint:tsx": "yarn --cwd frontend lint",
-    "start": "wails dev",
-    "test": "go test ./... && yarn --cwd frontend test",
+    "start": "yarn dev",
+    "test": "yarn test:go && yarn test:tsx",
     "test:go": "go test ./...",
     "test:tsx": "yarn --cwd frontend test",
     "type-check": "yarn --cwd frontend type-check"

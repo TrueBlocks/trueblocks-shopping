@@ -8,7 +8,7 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/TrueBlocks/trueblocks-shopping/internal/db"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/db"
 )
 
 func (a *App) ExportComparisonPDF(projectID int) (string, error) {
@@ -206,7 +206,7 @@ func writeMatches(pdf *gofpdf.Fpdf, matches []db.ColorMatch) {
 	pdf.SetY(y)
 	for _, m := range matches {
 		pdf.SetFont("Helvetica", "B", 11)
-		label := m.MatchType
+		var label string
 		if m.MatchType == "recipe" {
 			label = "Mixing Recipe"
 		} else {

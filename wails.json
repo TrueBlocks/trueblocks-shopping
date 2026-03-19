@@ -1,7 +1,7 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "AcrylicMaster",
-  "outputfilename": "AcrylicMaster",
+  "name": "Acrylic",
+  "outputfilename": "acrylic",
   "frontend:install": "yarn install",
   "frontend:build": "yarn build",
   "frontend:dev:watcher": "yarn dev",
@@ -12,7 +12,7 @@
   },
   "info": {
     "companyName": "TrueBlocks, LLC",
-    "productName": "AcrylicMaster",
+    "productName": "Acrylic",
     "productVersion": "1.0.0",
     "copyright": "Copyright © 2026 TrueBlocks, LLC",
     "comments": "A desktop app for managing painting projects with color matching"

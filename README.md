@@ -1,19 +1,48 @@
-# README
+# Acrylic
 
-## About
+Acrylic is a desktop app for painters who work from reference images and need help
+translating them into real acrylic paint choices.
 
-This is the official Wails React-TS template.
+It lets you drop or paste an image, extract a dominant palette, match those colors
+to paints in the local catalog, track which paints you already own, save favorite
+mixes, and generate PDF exports for comparison or shopping.
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+## Features
 
-## Live Development
+- Create projects from dropped, pasted, or selected images
+- Extract dominant colors from the source image
+- Match colors to real paints and generated mixing recipes
+- Track owned paints as a working inventory
+- Save favorite color recipes
+- Export comparison, detail, and shopping-list PDFs
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+## Data Storage
 
-## Building
+The app stores its data under `~/.local/share/trueblocks/acrylic/`.
 
-To build a redistributable, production mode package, use `wails build`.
+Important files and folders:
+
+- `acrylic.db` — SQLite database with paints, projects, matches, and favorites
+- `state.json` — persisted UI state
+- `projects/<id>/` — original images and thumbnails for each project
+
+## Development
+
+```bash
+yarn install
+yarn start
+```
+
+Useful commands:
+
+- `yarn lint`
+- `yarn type-check`
+- `yarn test`
+- `yarn build`
+
+## Architecture Notes
+
+- Backend: Go + Wails
+- Frontend: React + TypeScript + Mantine
+- Database: SQLite via `modernc.org/sqlite`
+- Shared libraries: `packages/appkit`, `packages/color`, `@trueblocks/ui`, `@trueblocks/scaffold`

@@ -250,7 +250,7 @@ ________________
 This section outlines the directory structure and implementation order to ensure a successful build.
 8.1 Project Structure
 The Wails CLI (wails init -t react-ts) generates the scaffold. We will structure the Go backend to separate domain logic from the UI bridge.
-AcrylicMaster/
+Acrylic/
 ├── main.go # Application Entry Point & Wails Config
 ├── app.go # The "Controller": Wails Bindings
 ├── wails.json # Project Configuration

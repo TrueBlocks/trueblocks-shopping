@@ -2,7 +2,7 @@ package app
 
 import (
 	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
-	"github.com/TrueBlocks/trueblocks-shopping/internal/state"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/state"
 )
 
 func (a *App) GetSidebarWidth() int                       { return a.state.GetSidebarWidth() }

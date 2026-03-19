@@ -1,5 +1,5 @@
 ---
-AcrylicMaster — Feature Specification (v2)
+Acrylic — Feature Specification (v2)
 
 Purpose: A desktop app for artists that manages painting projects. Drop an image,
 extract its dominant colors, match them to real acrylic paints with mixing recipes,
@@ -300,7 +300,7 @@ Aspect ratio: original/16:9/9:16/1:1, crop ratio
 ---
 Color Matching Engine (packages/color)
 
-The shopping app uses packages/color as a pure computation library. The app
+The acrylic app uses packages/color as a pure computation library. The app
 loads paints from its SQLite database, passes them to packages/color functions,
 and stores results back to the database. packages/color never knows about SQLite.
 
@@ -353,7 +353,7 @@ Database stored at:
 ---
 Go Backend Architecture
 
-shopping/
+acrylic/
   main.go                     appkit.Run(), embed assets
   app/
     app.go                    App struct, Startup/Shutdown, DB init, paint seeding

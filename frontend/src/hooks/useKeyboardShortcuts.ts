@@ -38,7 +38,7 @@ export function useKeyboardShortcuts() {
         } else if (e.key === '4') {
           e.preventDefault();
           ExportShoppingListPDF(projectId).catch((err) =>
-            LogErr('Export shopping list PDF failed:', err)
+            LogErr('Export acrylic list PDF failed:', err)
           );
         }
       }

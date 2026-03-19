@@ -29,7 +29,7 @@ func (db *DB) GetFavorites() ([]Favorite, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query favorites: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var items []Favorite
 	for rows.Next() {
@@ -66,7 +66,7 @@ func (db *DB) CreateFavorite(f Favorite) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	result, err := tx.Exec(
 		`INSERT INTO favorites (name, notes, r, g, b, hex) VALUES (?, ?, ?, ?, ?, ?)`,
@@ -112,7 +112,7 @@ func (db *DB) getFavoriteParts(favoriteID int) ([]FavoritePart, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query favorite parts: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var parts []FavoritePart
 	for rows.Next() {

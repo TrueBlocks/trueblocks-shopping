@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 
 	appkit "github.com/TrueBlocks/trueblocks-art/packages/appkit/v2"
-	"github.com/TrueBlocks/trueblocks-shopping/internal/db"
-	"github.com/TrueBlocks/trueblocks-shopping/internal/server"
-	"github.com/TrueBlocks/trueblocks-shopping/internal/state"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/db"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/server"
+	"github.com/TrueBlocks/trueblocks-acrylic/v2/internal/state"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -62,7 +62,9 @@ func (a *App) Startup(ctx context.Context) {
 
 func (a *App) Shutdown(_ context.Context) {
 	if a.db != nil {
-		a.db.Close()
+		if err := a.db.Close(); err != nil {
+			runtime.LogErrorf(a.ctx, "Failed to close database: %v", err)
+		}
 	}
 }
 

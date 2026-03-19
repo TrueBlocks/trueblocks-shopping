@@ -1,12 +1,15 @@
 MSG ?= update
 
-.PHONY: build test clean add commit push
+.PHONY: build test lint clean add commit push
 
 build:
-	wails build
+	yarn build
 
 test:
-	go test ./...
+	yarn test
+
+lint:
+	yarn lint
 
 clean:
 	rm -rf build/bin

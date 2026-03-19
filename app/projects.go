@@ -1,6 +1,6 @@
 package app
 
-import "github.com/TrueBlocks/trueblocks-shopping/internal/db"
+import "github.com/TrueBlocks/trueblocks-acrylic/v2/internal/db"
 
 func (a *App) GetProjects() ([]db.Project, error) {
 	return a.db.GetProjects()

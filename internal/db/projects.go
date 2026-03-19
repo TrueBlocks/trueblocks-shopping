@@ -64,7 +64,7 @@ func (db *DB) GetProjects() ([]Project, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query projects: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var items []Project
 	for rows.Next() {
@@ -160,7 +160,7 @@ func (db *DB) GetProjectColors(projectID int) ([]ProjectColor, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query project colors: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var items []ProjectColor
 	for rows.Next() {
@@ -234,7 +234,7 @@ func (db *DB) getColorMatches(colorID int) ([]ColorMatch, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query color matches: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var matches []ColorMatch
 	for rows.Next() {
@@ -270,7 +270,7 @@ func (db *DB) getMatchParts(matchID int) ([]MatchPart, error) {
 	if err != nil {
 		return nil, fmt.Errorf("query match parts: %w", err)
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var parts []MatchPart
 	for rows.Next() {
