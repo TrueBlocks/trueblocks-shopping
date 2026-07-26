@@ -23,11 +23,11 @@ clobber: clean
 add:
 	@git add -A
 
-commit:
+commit: lint
 	@git add -A
 	@git commit -m "$(MSG)" || true
 
-push:
+push: lint
 	@git add -A
 	@git commit -m "$(MSG)" || true
 	@git push
